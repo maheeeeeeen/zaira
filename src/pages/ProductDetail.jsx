@@ -1,21 +1,18 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useCart } from "../components/CartContext";
-import CartSidebar from "../components/CartSidebar";
 import productimg from "../assets/images/productDummy.svg";
 
-function ProductDetail() {
-  const { id } = useParams(); // Extracts the unique ID right out of the browser URL path
+function ProductDetail({ onProductAdded }) {
+  const { id } = useParams(); 
   const { addToCart } = useCart();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isCartOpen, setIsCartOpen] = useState(false);
 
   useEffect(() => {
     const fetchSingleProduct = async () => {
       try {
-        // Query the specific post ID directly from the WordPress engine
         const response = await fetch(`http://zaira.local/wp-json/wp/v2/posts/${id}?_embed`);
         if (!response.ok) throw new Error("Product data could not be retrieved.");
         const data = await response.json();
@@ -30,43 +27,39 @@ function ProductDetail() {
     fetchSingleProduct();
   }, [id]);
 
-  if (loading) return <div className="text-white p-10 bg-[#0B0B0B] min-h-screen">Loading item details...</div>;
-  if (error) return <div className="text-red-500 p-10 bg-[#0B0B0B] min-h-screen">Error: {error}</div>;
+  if (loading) return <div className="text-white p-10 bg-[#0B0B0B] min-h-screen tracking-widest text-xs uppercase">Loading item details...</div>;
+  if (error) return <div className="text-red-500 p-10 bg-[#0B0B0B] min-h-screen text-xs uppercase">Error: {error}</div>;
   if (!product) return null;
 
   const imageUrl = product._embedded?.["wp:featuredmedia"]?.[0]?.source_url;
 
   return (
-    <div className="bg-[#0B0B0B] text-white min-h-screen p-6 md:p-16 flex flex-col justify-between">
+    <div className="bg-[#0B0B0B] text-white min-h-screen p-6 md:p-16 flex flex-col selection:bg-[#C5A880] selection:text-black">
       
-      {/* Editorial Navigation Header */}
-      <nav className="mb-12 flex justify-between items-center max-w-6xl mx-auto w-full">
-        <Link to="/shop" className="text-xs uppercase tracking-[0.3em] text-gray-500 hover:text-[#C5A880] transition-colors">
+      {/* Back to Catalog Breadcrumb Navigation */}
+      <nav className="mb-12 max-w-6xl mx-auto w-full">
+        <Link className="text-xs uppercase tracking-[0.3em] text-gray-500 hover:text-[#C5A880] transition-colors" to="/shop">
           ← Back to Exhibition
         </Link>
-        <button 
-          onClick={() => setIsCartOpen(true)}
-          className="text-xs uppercase tracking-[0.2em] font-light text-white hover:text-[#C5A880] transition-colors"
-        >
-          Open Bag 🛒
-        </button>
       </nav>
 
-      {/* Main Two-Column Presentation Layout */}
-      <main className="max-w-6xl mx-auto w-full flex flex-col md:flex-row gap-12 items-start flex-1">
+      {/* Main Two-Column Presentation Layout (Perfectly Centered Axis) */}
+      <main className="max-w-6xl mx-auto w-full flex flex-col md:flex-row gap-12 items-center justify-center flex-1 my-auto">
         
-        {/* Left Side: Dramatic Frame Image */}
-        <div className="w-full md:w-1/2 border border-gray-900 p-2 bg-[#121212]">
-          <img 
-            src={imageUrl || productimg} 
-            alt={product.title.rendered} 
-            className="w-full h-[650px] object-cover"
-          />
+        {/* 🖼️ LEFT SIDE: HIGH-CONTRAST EDITORIAL IMAGE LAYER */}
+        <div className="w-full md:w-1/2 border border-gray-950 p-4 bg-[#121212] hover:border-gray-800 transition-all duration-500 group max-w-md">
+          <div className="overflow-hidden aspect-[4/5]">
+            <img 
+              src={imageUrl || productimg} 
+              alt={product.title.rendered} 
+              className="w-full h-full object-cover grayscale contrast-115 transition-transform duration-1000 ease-out group-hover:scale-103"
+            />
+          </div>
         </div>
 
-        {/* Right Side: Editorial Context Specifications */}
-        <div className="w-full md:w-1/2 flex flex-col justify-between h-full py-4">
-          <div>
+        {/* RIGHT SIDE: EDITORIAL SPECIFICATIONS PANEL */}
+        <div className="w-full md:w-1/2 flex flex-col justify-center py-4">
+          <div className="max-w-md">
             <span className="text-xs uppercase tracking-[0.4em] text-[#C5A880] font-light block mb-3">
               ZAIRA Studio — Limited Release
             </span>
@@ -74,29 +67,27 @@ function ProductDetail() {
               {product.title.rendered}
             </h1>
             <div 
-              className="text-gray-400 text-sm font-light tracking-wide leading-relaxed space-y-4 max-w-md markdown-content"
+              className="text-gray-400 text-sm font-light tracking-wide leading-relaxed space-y-4 max-w-md markdown-content mb-8"
               dangerouslySetInnerHTML={{ __html: product.content?.rendered || product.excerpt.rendered }}
             />
           </div>
 
-          {/* Interactive Transactions Segment */}
-          <div className="mt-12 max-w-md">
+          {/* Interactive Core Transactions Segment */}
+          <div className="max-w-md">
             <button 
               onClick={() => {
                 addToCart(product);
-                setIsCartOpen(true);
+                if (onProductAdded) onProductAdded(); // Smoothly pulls out the sidecart panel
               }}
-              className="w-full py-4 bg-[#C5A880] text-black font-semibold uppercase tracking-widest text-xs hover:bg-[#b3966e] transition-all duration-300 shadow-lg hover:shadow-[#C5A880]/10"
+              className="w-full py-4 bg-[#C5A880] text-black font-semibold uppercase tracking-widest text-xs hover:bg-[#b3966e] transition-all duration-300 shadow-lg"
             >
               Add To Bag
             </button>
           </div>
-          </div>
-        </main>
-
-        <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
+        </div>
+      </main>
     </div>
   );
 }
 
-export default ProductDetail;                                                                             
+export default ProductDetail;
