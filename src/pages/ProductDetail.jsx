@@ -11,9 +11,10 @@ function ProductDetail({ onProductAdded }) {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchSingleProduct = async () => {
+   const fetchSingleProduct = async () => {
       try {
-        const response = await fetch(`http://zaira.local/wp-json/wp/v2/posts/${id}?_embed`);
+        // 🎯 Yeh line .env se URL uthayegi automatic
+        const response = await fetch(`${import.meta.env.VITE_WP_API_URL}/wp/v2/posts/${id}?_embed`);
         if (!response.ok) throw new Error("Product data could not be retrieved.");
         const data = await response.json();
         setProduct(data);
@@ -23,7 +24,6 @@ function ProductDetail({ onProductAdded }) {
         setLoading(false);
       }
     };
-
     fetchSingleProduct();
   }, [id]);
 

@@ -42,8 +42,8 @@ function Checkout() {
     e.preventDefault();
     setIsProcessing(true);
 
-    // 🚀 Initialize your public key context layer before dispatching
-    emailjs.init("QqJNlrhDs0Ifr2Yn7");
+    // 🚀 FIXED: Initialize using your secure environment variable
+    emailjs.init(import.meta.env.VITE_EMAILJS_PUBLIC_KEY);
 
     // Format your shopping bag array into a clean text manifest list for the email body
     const manifestText = cart
@@ -59,11 +59,11 @@ function Checkout() {
       order_manifest: manifestText,
     };
 
-    // Send the live transaction payload direct to your mail delivery service
+    // 🚀 FIXED: Dispatched through your dynamic environment variable mappings
     emailjs
       .send(
-        "service_wcf6xp9",  
-        "template_l524zmc", 
+        import.meta.env.VITE_EMAILJS_SERVICE_ID,  
+        import.meta.env.VITE_EMAILJS_TEMPLATE_ID, 
         templateParams
       )
       .then(
@@ -230,5 +230,4 @@ function Checkout() {
   );
 }
 
-// 👑 THIS IS THE LINE THAT WE CURED BELOW!
 export default Checkout;

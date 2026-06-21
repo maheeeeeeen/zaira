@@ -1,13 +1,22 @@
-import { createContext, useState, useContext } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 
-// Create the empty global data container
 const CartContext = createContext();
 
-// Create the Provider component that holds the live state logic
 export function CartProvider({ children }) {
-  const [cart, setCart] = useState([]);
+  // 💾 Lazy initial state: Read from browser local memory on startup
+  const [cart, setCart] = useState(() => {
+    const savedCart = localStorage.getItem("zaira_cart");
+    return savedCart ? JSON.parse(savedCart) : [];
+  });
 
-  // Function to safely add items or increment quantity if it's already there
+  // 🔄 Automatic Synchronization Effect
+  useEffect(() => {
+    localStorage.setItem("zaira_cart", JSON.stringify(cart));
+  }, [cart]);
+
+  // Derived calculations
+  const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
+
   const addToCart = (product) => {
     setCart((prevCart) => {
       const existingItem = prevCart.find((item) => item.id === product.id);
@@ -20,25 +29,21 @@ export function CartProvider({ children }) {
     });
   };
 
-  // Function to remove an item completely
   const removeFromCart = (productId) => {
     setCart((prevCart) => prevCart.filter((item) => item.id !== productId));
   };
 
-  // Function to clear out the entire bag
-  const clearCart = () => setCart([]);
-
-  // Calculate total items currently in the bag
-  const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
+  const clearCart = () => {
+    setCart([]);
+  };
 
   return (
-    <CartContext.Provider value={{ cart, addToCart, removeFromCart, clearCart, cartCount }}>
+    <CartContext.Provider value={{ cart, cartCount, addToCart, removeFromCart, clearCart }}>
       {children}
     </CartContext.Provider>
   );
 }
 
-// Custom hook so any page can inject this cart context data instantly
 export function useCart() {
   return useContext(CartContext);
 }

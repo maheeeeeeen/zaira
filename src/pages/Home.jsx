@@ -29,7 +29,8 @@ function Home() {
     e.preventDefault();
     setIsSubmitting(true);
 
-    emailjs.init("QqJNlrhDs0Ifr2Yn7"); // Your live Public Key
+    // 🚀 FIXED: Initialize using your secure environment variable
+    emailjs.init(import.meta.env.VITE_EMAILJS_PUBLIC_KEY); 
 
     const templateParams = {
       user_email: emailInput,
@@ -39,9 +40,13 @@ function Home() {
       order_manifest: `New profile request added to matrix mailing pool: ${emailInput}`,
     };
 
-    // Reusing active template pipeline to send subscriber updates straight to your inbox
+    // 🚀 FIXED: Dispatched through your dynamic environment variable mappings
     emailjs
-      .send("service_wcf6xp9", "template_l524zmc", templateParams)
+      .send(
+        import.meta.env.VITE_EMAILJS_SERVICE_ID, 
+        import.meta.env.VITE_EMAILJS_TEMPLATE_ID, 
+        templateParams
+      )
       .then(
         () => {
           setIsSubmitting(false);
