@@ -93,105 +93,140 @@
 // export default ProductDetail;
 
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { useCart } from "../components/CartContext";
 import { mockProducts } from "../mockData";
 
 function ProductDetail() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { addToCart } = useCart();
+
   const [product, setProduct] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [selectedSize, setSelectedSize] = useState("M");
+  const [activeImage, setActiveImage] = useState("");
   const [added, setAdded] = useState(false);
 
   useEffect(() => {
-    const fetchSingleProduct = async () => {
-      try {
-        const res = await fetch(
-          `${import.meta.env.VITE_WP_API_URL}/wp/v2/posts/${id}?_embed`
-        );
-        if (!res.ok) throw new Error("API Offline");
-        const data = await res.json();
-        setProduct(data);
-      } catch (err) {
-        console.warn("Live API unavailable, resolving from local matrix.");
-        const matched =
-          mockProducts.find((p) => String(p.id) === String(id)) ||
-          mockProducts[0];
-        setProduct(matched);
-      } finally {
-        setLoading(false);
-      }
-    };
+    const matched =
+      mockProducts.find(
+        (p) => String(p.id) === String(id) || p.slug === String(id)
+      ) || mockProducts[0];
 
-    fetchSingleProduct();
+    setProduct(matched);
+    setActiveImage(matched.images?.[0] || "");
   }, [id]);
-
-  const handleAdd = () => {
-    if (!product) return;
-    addToCart(product);
-    setAdded(true);
-    setTimeout(() => setAdded(false), 2000);
-  };
-
-  if (loading) {
-    return (
-      <div className="bg-[#0B0B0B] text-white min-h-screen flex items-center justify-center">
-        <span className="text-xs uppercase tracking-[0.4em] text-gray-500 animate-pulse">
-          Deciphering Specs...
-        </span>
-      </div>
-    );
-  }
 
   if (!product) return null;
 
-  const imageUrl =
-    product._embedded?.["wp:featuredmedia"]?.[0]?.source_url ||
-    "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=800&auto=format&fit=crop";
+  const handleAddToCart = () => {
+    addToCart({ ...product, selectedSize });
+    setAdded(true);
+    setTimeout(() => setAdded(false), 1800);
+  };
+
+  const handleShopNow = () => {
+    addToCart({ ...product, selectedSize });
+    navigate("/checkout");
+  };
 
   return (
-    <div className="bg-[#0B0B0B] text-white min-h-screen p-6 md:p-16">
-      <div className="max-w-5xl mx-auto">
-        <Link
-          to="/shop"
-          className="text-[10px] uppercase tracking-[0.3em] text-gray-500 hover:text-[#C5A880] transition-colors mb-8 inline-block"
-        >
-          ← Return to Index
-        </Link>
+    <div className="bg-[#f5f5f5] text-[#111] min-h-screen py-10 px-4 md:px-12">
+      <div className="max-w-6xl mx-auto">
+        {/* Title Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl md:text-4xl font-normal text-gray-900 tracking-tight">
+            {product.title.rendered}
+          </h1>
+          <p className="text-xs uppercase tracking-widest text-gray-500 mt-1">
+            {product.categories.join(", ")}
+          </p>
+        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
-          <div className="bg-[#121212] border border-gray-900 p-4 aspect-[4/5] overflow-hidden">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          {/* Thumbnails */}
+          <div className="hidden lg:flex lg:col-span-2 flex-col gap-3">
+            {product.images?.map((img, idx) => (
+              <button
+                key={idx}
+                onClick={() => setActiveImage(img)}
+                className={`border-2 overflow-hidden aspect-[3/4] bg-white transition-all ${
+                  activeImage === img ? "border-black" : "border-transparent opacity-60 hover:opacity-100"
+                }`}
+              >
+                <img src={img} alt="" className="w-full h-full object-cover" />
+              </button>
+            ))}
+          </div>
+
+          {/* Main Hero Image */}
+          <div className="lg:col-span-5 bg-white border border-gray-200 aspect-[3/4] overflow-hidden">
             <img
-              src={imageUrl}
+              src={activeImage || product.images?.[0]}
               alt={product.title.rendered}
-              className="w-full h-full object-cover grayscale contrast-110"
+              className="w-full h-full object-cover"
             />
           </div>
 
-          <div className="space-y-6">
-            <span className="text-[10px] uppercase tracking-[0.4em] text-[#C5A880] block">
-              Studio Specification
-            </span>
-            <h1 className="text-3xl font-extralight uppercase tracking-widest text-white">
-              {product.title.rendered}
-            </h1>
+          {/* Product Details & Purchase Actions */}
+          <div className="lg:col-span-5 space-y-6 lg:pl-4">
+            <div className="border-b border-gray-300 pb-4">
+              <span className="text-[11px] uppercase tracking-[0.2em] text-gray-400 font-semibold block">
+                ZAIRA COUTURE — Est. 2026
+              </span>
+              <p className="text-2xl font-medium text-gray-900 mt-2">
+                ${product.price}
+              </p>
+            </div>
 
             <div
-              className="text-gray-400 text-xs tracking-wide leading-relaxed space-y-4"
-              dangerouslySetInnerHTML={{
-                __html:
-                  product.content?.rendered ||
-                  "<p>Bespoke architectural garment engineered with precision fabrics.</p>"
-              }}
+              className="text-xs leading-relaxed text-gray-600 font-light"
+              dangerouslySetInnerHTML={{ __html: product.content.rendered }}
             />
 
-            <div className="pt-6 border-t border-gray-900">
+            {/* Size Selector */}
+            <div>
+              <span className="text-[11px] uppercase tracking-widest font-semibold text-gray-700 block mb-2">
+                Size
+              </span>
+              <div className="flex gap-2">
+                {["S", "M", "L", "XL"].map((sz) => (
+                  <button
+                    key={sz}
+                    onClick={() => setSelectedSize(sz)}
+                    className={`w-10 h-10 text-xs font-medium border transition-all ${
+                      selectedSize === sz
+                        ? "bg-black text-white border-black"
+                        : "bg-white text-gray-800 border-gray-300 hover:border-black"
+                    }`}
+                  >
+                    {sz}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Specifications */}
+            <div className="space-y-1.5 text-xs text-gray-600 border-t border-gray-200 pt-4">
+              <p><strong className="text-gray-900 font-medium">FIT:</strong> {product.fit}</p>
+              <p><strong className="text-gray-900 font-medium">MATERIAL:</strong> {product.material}</p>
+              <p><strong className="text-gray-900 font-medium">DELIVERY:</strong> {product.delivery}</p>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="grid grid-cols-2 gap-3 pt-2">
               <button
-                onClick={handleAdd}
-                className="w-full py-4 bg-[#C5A880] text-black text-xs font-semibold uppercase tracking-widest hover:bg-[#b3966e] transition-all"
+                onClick={handleAddToCart}
+                className="w-full py-3.5 bg-black text-white text-xs font-semibold uppercase tracking-widest hover:bg-neutral-800 transition-colors"
               >
-                {added ? "ALLOCATED TO BAG ✓" : "ACQUIRE PIECE"}
+                {added ? "ADDED ✓" : "ADD TO BAG"}
+              </button>
+
+              <button
+                onClick={handleShopNow}
+                className="w-full py-3.5 bg-neutral-200 border border-neutral-300 text-black text-xs font-semibold uppercase tracking-widest hover:bg-neutral-300 transition-colors"
+              >
+                SHOP NOW
               </button>
             </div>
           </div>
