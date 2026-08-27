@@ -54,7 +54,7 @@ function Navbar() {
   const totalItems = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
 
   return (
-    <header className="sticky top-0 z-50 bg-[#f5f5f5]/95 backdrop-blur-md border-b border-gray-200">
+    <header className="sticky top-0 z-50 bg-[#0B0B0B]/95 backdrop-blur-md border-b border-gray-200">
       <div className="max-w-6xl mx-auto px-4 md:px-12 h-20 flex items-center justify-between">
         
         {/* Left Navigation Links */}
