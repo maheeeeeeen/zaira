@@ -7,24 +7,26 @@ function Home() {
   const [emailInput, setEmailInput] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // 🖼️ The Curated Lookbook Cards Grid Array
+ // 🖼️ The Curated Lookbook Cards Grid Array
   const lookbookHighlights = [
     {
       id: "featured-1",
       title: "Asymmetric Outerwear",
       subtitle: "Collection 01",
-      img: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=600&auto=format&fit=crop",
+      // High-fashion structured tailored coat / outerwear
+      img: "https://images.unsplash.com/photo-1544441893-675973e31985?q=80&w=800&auto=format&fit=crop",
       tag: "Limited Release",
-      targetPath: "/shop?category=outerwear",
+      targetPath: "/shop?category=outerwear"
     },
     {
       id: "featured-2",
       title: "Midnight Essentia",
       subtitle: "Minimalist Layering",
-      img: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?q=80&w=600&auto=format&fit=crop",
+      // Heavyweight luxury minimalist hoodie / drop-shoulder drape
+      img: "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?q=80&w=800&auto=format&fit=crop",
       tag: "New Drops",
-      targetPath: "/shop?category=essentials",
-    },
+      targetPath: "/shop?category=essentials"
+    }
   ];
 
   const handleCardClick = (path) => {
