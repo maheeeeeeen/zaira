@@ -1,4 +1,4 @@
-import { useState } from "react"; // 🚀 Added to manage the side drawer state
+import { useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { CartProvider } from "./components/CartContext";
 import Home from "./pages/Home";
@@ -7,8 +7,8 @@ import ProductDetail from "./pages/ProductDetail";
 import Checkout from "./pages/Checkout";
 import Story from "./pages/Story";
 import Contact from "./pages/Contact";
-import Navbar from "./components/Navbar"; // 🚀 Imported
-import CartSidebar from "./components/CartSidebar"; // 🚀 Bring in your sliding drawer panel
+import Navbar from "./components/Navbar";
+import CartSidebar from "./components/CartSidebar"; 
 import Footer from "./components/Footer";
 
 function App() {
@@ -18,10 +18,10 @@ function App() {
     <CartProvider>
       <Router>
         <div className="flex flex-col min-h-screen bg-[#0B0B0B]">
-          {/* 🚀 Uniform Navbar displayed on top of every page layout */}
+          {/*  Uniform Navbar displayed on top of every page layout */}
           <Navbar onOpenCart={() => setIsCartOpen(true)} />
 
-          {/* 🚀 Sliding checkout drawer container layer */}
+          {/* Sliding checkout drawer container layer */}
           <CartSidebar
             isOpen={isCartOpen}
             onClose={() => setIsCartOpen(false)}
