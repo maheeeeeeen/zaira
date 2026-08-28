@@ -42,6 +42,7 @@ function CartSidebar({ isOpen, onClose }) {
                     <div className="w-16 h-20 bg-gray-950 overflow-hidden flex-shrink-0">
                       <img
                         src={
+                          item.images?.[0] ||
                           item._embedded?.["wp:featuredmedia"]?.[0]
                             ?.source_url ||
                           item.featured_media_src_url ||

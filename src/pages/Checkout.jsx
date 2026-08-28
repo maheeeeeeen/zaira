@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useCart } from "../components/CartContext";
 import { Link, useNavigate } from "react-router-dom";
-import emailjs from "@emailjs/browser"; 
+import emailjs from "@emailjs/browser";
 
 function Checkout() {
   const { cart, cartCount, clearCart } = useCart();
@@ -62,13 +62,17 @@ function Checkout() {
     // 🚀 FIXED: Dispatched through your dynamic environment variable mappings
     emailjs
       .send(
-        import.meta.env.VITE_EMAILJS_SERVICE_ID,  
-        import.meta.env.VITE_EMAILJS_TEMPLATE_ID, 
-        templateParams
+        import.meta.env.VITE_EMAILJS_SERVICE_ID,
+        import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
+        templateParams,
       )
       .then(
         (response) => {
-          console.log("Email dispatched successfully!", response.status, response.text);
+          console.log(
+            "Email dispatched successfully!",
+            response.status,
+            response.text,
+          );
           setIsProcessing(false);
           setOrderSuccess(true);
           clearCart(); // Safely flush the bag on success
@@ -76,8 +80,10 @@ function Checkout() {
         (err) => {
           console.error("EmailJS Detailed Server Error:", err);
           setIsProcessing(false);
-          alert(`Transaction dispatch failure: ${err.text || "Check dashboard settings"}`);
-        }
+          alert(
+            `Transaction dispatch failure: ${err.text || "Check dashboard settings"}`,
+          );
+        },
       );
   };
 
@@ -201,7 +207,7 @@ function Checkout() {
           <div className="space-y-4 max-h-[40vh] overflow-y-auto pr-2 mb-6">
             {cart.map((item) => (
               <div
-                key={item.id}
+                key={`${item.id}-${item.selectedSize || "default"}`}
                 className="flex justify-between items-center border-b border-gray-900 pb-3 text-xs tracking-wide"
               >
                 <div>
@@ -209,11 +215,11 @@ function Checkout() {
                     {item.title.rendered}
                   </h4>
                   <p className="text-gray-500 text-[10px] mt-0.5">
-                    QTY: {item.quantity}
+                    SIZE: {item.selectedSize || "M"} | QTY: {item.quantity}
                   </p>
                 </div>
                 <span className="text-gray-400 font-light">
-                  Limited Allocation
+                  ${(item.price || 160) * item.quantity}
                 </span>
               </div>
             ))}
